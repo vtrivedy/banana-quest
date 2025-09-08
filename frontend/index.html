@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banana Quest - A Nano Banana Fantasy Adventure</title>
+    <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;600&family=Cinzel:wght@600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Spectral', serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
+            min-height: 100vh;
+            color: #e8d5b7;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23000" opacity="0.03" x="0" y="0" width="100" height="100"/><path fill="none" stroke="%23caa954" stroke-width="0.5" opacity="0.1" d="M0,50 Q25,30 50,50 T100,50"/></svg>') repeat;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #caa95433;
+        }
+
+        .header h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: #caa954;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #a89c8c;
+            font-style: italic;
+        }
+
+        /* Character Setup */
+        .setup-card {
+            background: linear-gradient(135deg, #2a2a3e 0%, #1f1f2e 100%);
+            border: 2px solid #caa95433;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .setup-card h2 {
+            font-family: 'Cinzel', serif;
+            color: #caa954;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #caa954;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .form-group input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            background: #1a1a2e;
+            border: 1px solid #caa95455;
+            border-radius: 5px;
+            color: #e8d5b7;
+            font-family: 'Spectral', serif;
+            font-size: 1rem;
+        }
+
+        .form-group input[type="text"]:focus {
+            outline: none;
+            border-color: #caa954;
+            box-shadow: 0 0 10px rgba(202, 169, 84, 0.3);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 12px;
+            background: linear-gradient(135deg, #2e8b57 0%, #1e6b47 100%);
+            border: 1px solid #2e8b57;
+            border-radius: 5px;
+            color: white;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .file-input-wrapper:hover .file-input-label {
+            background: linear-gradient(135deg, #3ea567 0%, #2e8b57 100%);
+            box-shadow: 0 5px 15px rgba(46, 139, 87, 0.3);
+        }
+
+        .start-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #caa954 0%, #9d8543 100%);
+            border: none;
+            border-radius: 5px;
+            color: #1a1a2e;
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .start-button:hover:not(:disabled) {
+            background: linear-gradient(135deg, #d4b964 0%, #caa954 100%);
+            box-shadow: 0 5px 20px rgba(202, 169, 84, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .start-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Game Area */
+        .game-area {
+            display: none;
+        }
+
+        .game-area.active {
+            display: block;
+        }
+
+        /* Character Portrait Preview */
+        .character-preview {
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .character-preview.active {
+            display: block;
+        }
+        
+        .character-portrait {
+            width: 300px;
+            max-width: 100%;
+            border-radius: 10px;
+            border: 3px solid #caa954;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            margin: 0 auto 15px;
+            display: block;
+        }
+        
+        .character-description {
+            color: #caa954;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+
+        /* Scene Card */
+        .scene-card {
+            background: linear-gradient(135deg, #2a2a3e 0%, #1f1f2e 100%);
+            border: 2px solid #caa95433;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .scene-card.user-message {
+            background: linear-gradient(135deg, #1e3a2e 0%, #152a1e 100%);
+            border-color: #2e8b5755;
+            padding: 15px 20px;
+        }
+        
+        .user-label {
+            color: #2e8b57;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .scene-image {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+        }
+
+        .scene-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #e8d5b7;
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+        }
+
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .option-button {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #2e8b57 0%, #1e6b47 100%);
+            border: 1px solid #2e8b5755;
+            border-radius: 5px;
+            color: white;
+            font-family: 'Spectral', serif;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option-button:hover {
+            background: linear-gradient(135deg, #3ea567 0%, #2e8b57 100%);
+            box-shadow: 0 5px 15px rgba(46, 139, 87, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .option-button.selected {
+            background: linear-gradient(135deg, #caa954 0%, #9d8543 100%);
+            border-color: #caa954;
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+
+        /* Input Area */
+        .input-area {
+            background: linear-gradient(135deg, #2a2a3e 0%, #1f1f2e 100%);
+            border: 2px solid #caa95433;
+            border-radius: 10px;
+            padding: 20px;
+            position: sticky;
+            bottom: 20px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-wrapper input {
+            flex: 1;
+            padding: 12px;
+            background: #1a1a2e;
+            border: 1px solid #caa95455;
+            border-radius: 5px;
+            color: #e8d5b7;
+            font-family: 'Spectral', serif;
+            font-size: 1rem;
+        }
+
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: #caa954;
+            box-shadow: 0 0 10px rgba(202, 169, 84, 0.3);
+        }
+
+        .send-button {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #caa954 0%, #9d8543 100%);
+            border: none;
+            border-radius: 5px;
+            color: #1a1a2e;
+            font-family: 'Cinzel', serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+
+        .send-button:hover:not(:disabled) {
+            background: linear-gradient(135deg, #d4b964 0%, #caa954 100%);
+            box-shadow: 0 5px 15px rgba(202, 169, 84, 0.4);
+        }
+
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #caa95433;
+            border-top: 3px solid #caa954;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Error Message */
+        .error-message {
+            background: #8b2e2e;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .option-button {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>BANANA QUEST</h1>
+            <p>A Nano Banana Driven Fantasy Adventure</p>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <!-- Character Setup -->
+        <div class="setup-card" id="setupCard">
+            <h2>Create Your Character</h2>
+            <div class="form-group">
+                <label for="characterName">Character Name</label>
+                <input type="text" id="characterName" placeholder="Enter your character's name" />
+            </div>
+            <div class="form-group">
+                <label for="characterImage">Character Portrait</label>
+                <div class="file-input-wrapper">
+                    <input type="file" id="characterImage" accept="image/*" />
+                    <div class="file-input-label">Choose Character Image</div>
+                </div>
+                <small style="color: #a89c8c; display: block; margin-top: 8px;">
+                    Upload a photo to be transformed into your fantasy character
+                </small>
+            </div>
+            <div class="character-preview" id="characterPreview">
+                <img id="characterPortrait" class="character-portrait" />
+                <p class="character-description" id="characterDescription"></p>
+            </div>
+            <button class="start-button" id="generateButton" onclick="generateCharacter()" style="margin-bottom: 10px;">
+                Generate Character
+            </button>
+            <button class="start-button" id="startButton" onclick="startAdventure()" style="display: none;">
+                Begin Your Quest
+            </button>
+        </div>
+
+        <!-- Game Area -->
+        <div class="game-area" id="gameArea">
+            <div id="scenesContainer"></div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 10px; color: #caa954;">The fates are weaving your story...</p>
+            </div>
+
+            <div class="input-area">
+                <div class="input-wrapper">
+                    <input 
+                        type="text" 
+                        id="userInput" 
+                        placeholder="What do you do? (or choose an option above)"
+                        onkeypress="handleKeyPress(event)"
+                    />
+                    <button class="send-button" id="sendButton" onclick="sendMessage()">
+                        Send
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Background Audio -->
+    <audio id="backgroundMusic" loop>
+        <source src="soundtrack.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <script>
+        let sessionId = null;
+        let characterImageBase64 = null;
+        let characterPortraitBase64 = null;
+        let characterName = null;
+        let isLoading = false;
+        
+        // Start background music on first user interaction
+        let musicStarted = false;
+        function startMusic() {
+            if (!musicStarted) {
+                const audio = document.getElementById('backgroundMusic');
+                audio.volume = 0.3; // Set to 30% volume
+                audio.play().catch(e => console.log('Audio autoplay prevented:', e));
+                musicStarted = true;
+            }
+        }
+        
+        // Try to start music on any user interaction
+        document.addEventListener('click', startMusic);
+        document.addEventListener('keydown', startMusic);
+
+        // Handle file input change
+        document.getElementById('characterImage').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const label = document.querySelector('.file-input-label');
+                label.textContent = file.name;
+                
+                // Convert to base64
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    characterImageBase64 = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.classList.add('active');
+            setTimeout(() => {
+                errorEl.classList.remove('active');
+            }, 5000);
+        }
+
+        async function generateCharacter() {
+            const name = document.getElementById('characterName').value.trim();
+            
+            if (!name) {
+                showError('Please enter a character name');
+                return;
+            }
+            
+            if (!characterImageBase64) {
+                showError('Please upload a character image');
+                return;
+            }
+            
+            characterName = name;
+            
+            // Show loading
+            document.getElementById('generateButton').disabled = true;
+            document.getElementById('generateButton').textContent = 'Generating Hero...';
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/generate-character', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        image: characterImageBase64
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                characterPortraitBase64 = data.portrait;
+                
+                // Show character preview
+                document.getElementById('characterPortrait').src = data.portrait;
+                document.getElementById('characterDescription').textContent = data.description;
+                document.getElementById('characterPreview').classList.add('active');
+                
+                // Show start button, hide generate button
+                document.getElementById('generateButton').style.display = 'none';
+                document.getElementById('startButton').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Failed to generate character. Please try again.');
+                document.getElementById('generateButton').disabled = false;
+                document.getElementById('generateButton').textContent = 'Generate Character';
+            }
+        }
+        
+        function startAdventure() {
+            if (!characterPortraitBase64) {
+                showError('Please generate your character first');
+                return;
+            }
+
+            // Hide setup, show game
+            document.getElementById('setupCard').style.display = 'none';
+            document.getElementById('gameArea').classList.add('active');
+            
+            // Send initial message with the transformed portrait
+            sendInitialMessage(characterName);
+        }
+
+        async function sendInitialMessage(name) {
+            // Add welcome cover image first
+            addCoverImage();
+            
+            const message = "Begin the adventure! Start with an exciting opening scene.";
+            await sendChatMessage(message, name, characterPortraitBase64);
+        }
+        
+        function addCoverImage() {
+            const container = document.getElementById('scenesContainer');
+            const card = document.createElement('div');
+            card.className = 'scene-card';
+            card.innerHTML = `
+                <img src="cover.png" alt="Welcome to your adventure" class="scene-image" />
+                <div style="text-align: center; margin-top: 20px;">
+                    <h2 style="font-family: 'Cinzel', serif; color: #caa954; font-size: 1.8rem;">Your Banana Quest Begins</h2>
+                    <p style="color: #a89c8c; font-style: italic;">The fates are weaving your destiny...</p>
+                </div>
+            `;
+            container.appendChild(card);
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (!message || isLoading) return;
+            
+            // Show user message in chat
+            addUserMessage(message);
+            
+            input.value = '';
+            
+            // Scroll to loading area
+            setTimeout(() => {
+                document.getElementById('loading').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+            
+            await sendChatMessage(message);
+        }
+        
+        function addUserMessage(message) {
+            const container = document.getElementById('scenesContainer');
+            const card = document.createElement('div');
+            card.className = 'scene-card user-message';
+            card.innerHTML = `
+                <div class="user-label">Your Action</div>
+                <div class="scene-text">${message}</div>
+            `;
+            container.appendChild(card);
+        }
+
+        async function sendChatMessage(message, characterName = null, characterImage = null) {
+            if (isLoading) return;
+            
+            isLoading = true;
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('sendButton').disabled = true;
+            
+            try {
+                const body = {
+                    session_id: sessionId,
+                    message: message
+                };
+                
+                if (characterName) {
+                    body.character_name = characterName;
+                }
+                
+                if (characterImage) {
+                    body.character_image = characterImage;
+                }
+                
+                const response = await fetch('http://localhost:8000/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(body)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                sessionId = data.session_id;
+                
+                // Create scene card
+                addSceneCard(data.image, data.text);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Failed to connect to the game server. Please try again.');
+            } finally {
+                isLoading = false;
+                document.getElementById('loading').classList.remove('active');
+                document.getElementById('sendButton').disabled = false;
+                document.getElementById('userInput').focus();
+            }
+        }
+
+        function addSceneCard(image, text) {
+            const container = document.getElementById('scenesContainer');
+            const card = document.createElement('div');
+            card.className = 'scene-card';
+            
+            let html = '';
+            
+            if (image) {
+                html += `<img src="${image}" alt="Scene" class="scene-image" />`;
+            }
+            
+            if (text) {
+                // Parse for numbered options
+                const lines = text.split('\n');
+                let narrative = [];
+                let options = [];
+                let inOptions = false;
+                
+                for (const line of lines) {
+                    const trimmed = line.trim();
+                    // Check if line is a numbered option (1. 2. 3. or 1) 2) 3))
+                    if (/^[1-4][\.\)]/.test(trimmed)) {
+                        inOptions = true;
+                        options.push(trimmed.substring(trimmed.indexOf(' ') + 1));
+                    } else if (inOptions && trimmed === '') {
+                        // Empty line after options, might be done
+                    } else if (!inOptions || trimmed) {
+                        if (inOptions && trimmed) {
+                            // Non-option text after options, add to narrative
+                            narrative.push(line);
+                        } else {
+                            narrative.push(line);
+                        }
+                    }
+                }
+                
+                html += `<div class="scene-text">${narrative.join('\n')}</div>`;
+                
+                if (options.length > 0) {
+                    html += '<div class="options">';
+                    options.forEach((option, index) => {
+                        html += `<button class="option-button" onclick="selectOption('${option.replace(/'/g, "\\'")}', this)">${index + 1}. ${option}</button>`;
+                    });
+                    html += '</div>';
+                }
+            }
+            
+            card.innerHTML = html;
+            container.appendChild(card);
+            
+            // Scroll to new content
+            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function selectOption(option, buttonElement) {
+            // Mark button as selected
+            if (buttonElement) {
+                // Remove selected class from all buttons in this card
+                const card = buttonElement.closest('.scene-card');
+                card.querySelectorAll('.option-button').forEach(btn => {
+                    btn.classList.remove('selected');
+                    btn.disabled = true; // Disable all buttons after selection
+                });
+                buttonElement.classList.add('selected');
+            }
+            
+            document.getElementById('userInput').value = option;
+            sendMessage();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Keyboard shortcuts for options
+        document.addEventListener('keydown', function(event) {
+            if (event.key >= '1' && event.key <= '4' && !isLoading) {
+                const options = document.querySelectorAll('.scene-card:last-child .option-button');
+                const index = parseInt(event.key) - 1;
+                if (options[index]) {
+                    options[index].click();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
