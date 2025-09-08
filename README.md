@@ -2,6 +2,10 @@
 
 An interactive fantasy adventure game powered by Google's Gemini 2.5 Flash Image model (aka "Nano Banana"). Upload your photo, transform into a fantasy hero, and embark on an AI-generated quest with dynamic scene illustrations and story progression.
 
+
+https://github.com/user-attachments/assets/1f0120e5-b6a6-45cb-b863-835ab21abfa9
+
+
 ## 🎮 What We Built
 
 **Banana Quest** is a browser-based fantasy adventure game that showcases the power of Gemini's multimodal capabilities. The game features:
